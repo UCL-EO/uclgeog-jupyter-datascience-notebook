@@ -1,7 +1,7 @@
 # ipypi and conda parameters
 # 
 package:
-  name:    uclgeog
+  name:    uclgeog-jupyter
   version: 1.0.0
 
 source:
