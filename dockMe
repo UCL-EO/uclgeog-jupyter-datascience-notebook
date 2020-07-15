@@ -1,0 +1,111 @@
+#!/bin/bash
+
+# get env from env.sh
+. env.sh
+# Linux docker build
+
+
+function set_docker {
+  # 
+  # generate docker file from 
+  # a template
+  #
+  OS_=$1
+  IMAGE_=$2
+  TAG_=$3
+  NAME_=$4
+  USER_=$5
+  DOCKER_USER_=$6
+  SUDO_FLAG_=$7
+  
+  source ~/.bashrc
+
+  if [[ -z ${DOCKER_PASSWORD} ]];
+  then
+      echo -n "DOCKER_PASSWORD for ${DOCKER_USER_}: "
+      read -s DOCKER_PASSWORD
+  fi
+  touch ~/.bashrc
+  grep -v 'DOCKER_PASSWORD=' < ~/.bashrc > ~/.bashrc.fwd
+  echo "DOCKER_PASSWORD=${DOCKER_PASSWORD}" >> ~/.bashrc.fwd
+  mv ~/.bashrc.fwd ~/.bashrc
+  
+  TEMPLATE=docker-template/Dockerfile.template
+
+  DOCKER_DIR=docker-${OS_}
+  # subdir for docker
+  mkdir -p ${DOCKER_DIR}
+  DOCKERFILE=${DOCKER_DIR}/Dockerfile
+  DOCKER=${DOCKER_USER_}/${NAME_}:${TAG_}
+
+  # escape any slash
+  #IMAGE_=`echo $IMAGE_|sed 's/\//\\\//g'`
+
+  # get the login over with now
+  docker login -u "${DOCKER_USER_}" -p "${DOCKER_PASSWORD}"
+  # filter the dockerfile
+  sed < $TEMPLATE 's/__BASE_IMAGE__/'${IMAGE_}'/g'  | \
+    sed 's/__SUDO__/'${SUDO_FLAG_}'/g' | \
+    sed 's/__NB_USER__/'${USER_}'/g' > ${DOCKERFILE}
+
+  echo "generating docker image in ${DOCKER_DIR} at ${DOCKER}"
+  docker build --tag ${DOCKER} --file ${DOCKERFILE} .
+  echo "pushing ${DOCKER}"
+  docker push ${DOCKER}
+}
+
+
+source env.sh
+TAG=${SETUP_DOCER_TAG}
+NAME="${SETUP_NAME}"
+USER=${SETUP_NB_USER}
+DOCKER_USER=${SETUP_DOCKER_USER}
+
+
+# command line parsing
+OS='Linux'
+# escape the /
+IMAGE='jupyter\/datascience-notebook'
+
+THIS=`basename $0`
+POSITIONAL=()
+while [[ $# -gt 0 ]]
+do
+key="$1"
+SUDO='-n'
+case $key in
+    -o|--os)
+    OS="$2"
+    shift # past argument
+    shift # past value
+    ;;
+    -b|--base_image)
+    IMAGE="$2"
+    shift # past argument
+    shift # past value
+    ;;
+    -s|--sudo)
+    SUDO=-s
+    shift # past argument
+    ;;
+    -n|--no_sudo)
+    SUDO=-n
+    shift # past argument
+    ;;
+    -h|--help)
+    echo "$THIS [-o|--os 'Linux'] [-b|--base_image 'jupyter\/minimal-notebook']"
+    echo "      [-s|--sudo] | [-n|-no_sudo]']"
+    echo "for the moment, you need to make sure to escape the / in the base image"
+    shift # past argument
+    exit
+esac
+done
+set -- "${POSITIONAL[@]}" 
+
+echo "OS: $OS"
+echo "base image: $IMAGE"
+echo "sudo flag is $SUDO"
+
+set_docker $OS $IMAGE $TAG $NAME $USER $DOCKER_USER $SUDO
+
+echo ${DOCKER_USER}/${NAME}:${TAG}
