@@ -117,11 +117,7 @@ else
     echo "variable named CONDA_DIR is already set"
 fi
 
-version=`cat .info/conda.version`
 source ${CONDA_DIR}/etc/profile.d/conda.sh
-conda update conda=$version
-
-conda env update --file .info/datascience-notebook.yml
 hash -r
 
 echo "pre-setup done"

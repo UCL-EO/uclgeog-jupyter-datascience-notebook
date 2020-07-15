@@ -32,7 +32,7 @@ class Batch():
   with variable substitution from meta
 
   '''
-  def __init__(self,scripts=['start',('conda.recipe',),'postBuild'],
+  def __init__(self,scripts=['start',('conda-recipe.sh',),'postBuild'],
                     meta='meta.yaml',debug=False,\
                     env={'pyver':'3.7'},
                     verbose=True):
@@ -88,8 +88,10 @@ class Batch():
         m = m.format(**env)
         self.verbose and print(f'** {i+1}/{len(lines)}: {m}')
         if run:
-          retval.append([m,check_output(m,shell=True)])
-
+          try:
+            retval.append([m,check_output(m,shell=True)])
+          except:
+            pass
     except:
       error = f'error running {recipe_file}'
       if(fatal):
@@ -115,10 +117,10 @@ def main(argv):
 
   verbose = False
   help = False
-  recipe = ['start','conda.recipe','postBuild']
+  recipe = ['start','conda-recipe.sh','postBuild']
   pyver = '3.7'
 
-  env = {"recipe": ["start","conda.recipe","postBuild"]}
+  env = {"recipe": ["start","conda-recipe.sh","postBuild"]}
   env.update({'pyver':'3.7'})
   env.update({'meta':'meta.yaml'})
   json_env = json.dumps(env) 
