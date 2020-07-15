@@ -1,0 +1,15 @@
+FROM __BASE_IMAGE__
+# Docker install
+#
+#
+COPY . ${HOME}
+
+RUN /bin/bash get_pkgs.sh __SUDO__
+
+# Only use this if you dont have miniconda
+#RUN /bin/bash conda_get.sh
+
+RUN python uclgeog/batch.py
+#USER __NB_USER__
+
+ENTRYPOINT ["/bin/bash"]

@@ -1,0 +1,40 @@
+# ipypi and conda parameters
+# 
+package:
+  name:    uclgeog
+  version: 1.0.0
+
+source:
+  git_rev: 1.0.0
+  git_url: https://github.com/UCL-EO/uclgeog
+
+build:
+  noarch: python
+  number: 0
+  script: python -m pip install --no-deps --ignore-installed .
+
+
+requirements:
+  build:
+    - python>=3.7
+    - setuptools
+
+  run:
+    - python
+
+test:
+  imports:
+    - gdal
+
+about:
+  home:         https://github.com/UCL-EO/uclgeog
+  description:  UCL Geography course notes
+  author:       Prof. P. Lewis
+  email:        p.lewis@ucl.ac.uk
+  keywords:     scientific computing
+  license:      MIT
+
+docker:
+  user:         proflewis
+  tag:          latest
+  nb_user:      uclgeog
