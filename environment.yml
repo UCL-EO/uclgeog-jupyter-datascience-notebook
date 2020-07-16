@@ -64,6 +64,7 @@ dependencies:
   - importlib_metadata
   - nbgrader
   - deepdiff
+  - ghostscript
   - pip
   - pip:
     - jupyter_http_over_ws

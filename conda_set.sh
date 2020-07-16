@@ -1,6 +1,6 @@
 #!/bin/bash
 # 
-# conda getup
+# conda setup
 #
 # This is generic to all versions
 # for linux 
@@ -10,4 +10,5 @@
 # needs:
 #
 # takes docker config and applies to conda dist
-conda env update --file .info/datascience-notebook.yml
+conda env update -n base --file .config/base_environment.yml
+
